@@ -1,21 +1,40 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include "tokenizer.h"
+#include "history.h"
 
-int main() {
+int main(void) {
     char input[256]; // Assuming a maximum input length of 256 characters
-
+    List *history = init_history();
+    char **tokens;
+    
     while (1) {
         printf("> "); // Display the prompt
-        fgets(input, sizeof(input), stdin); // Read input from the user
-        
-        // Check for the end of input (Ctrl + D or Ctrl + Z in some systems)
-        if (feof(stdin)) {
+        if (fgets(input, sizeof(input), stdin) == NULL) {
             printf("\n");
-            break;
+            break; // End of input (Ctrl + D or Ctrl + Z)
         }
 
-        // Echo the input back to the user
-        printf("%s", input);
+        if (input[0] == '\n') continue; // Skip empty input
+
+        // Add input to history
+        add_history(history, input);
+
+        // Tokenize the input
+        tokens = tokenize(input);
+
+        // Print tokens
+        print_tokens(tokens);
+
+        // Free tokens
+        free_tokens(tokens);
     }
+
+    // Print history before exiting
+    print_history(history);
+
+    // Free history list
+    free_history(history);
 
     return 0;
 }
